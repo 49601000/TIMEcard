@@ -26,7 +26,8 @@ folder_id = "1-3Dc_yKjZQt8kJD_xlRFmuH4RKAxf_Jb"
 client_id = st.secrets["web"]["client_id"]
 client_secret = st.secrets["web"]["client_secret"]
 token_uri = st.secrets["web"]["token_uri"]
-redirect_uri = "https://timecard-xvsby8ih4cxk6npxpyjmnf.streamlit.app"
+"redirect_uri": st.secrets["web"]["redirect_uri"],
+
 
 # タイトル表示
 show_title()
