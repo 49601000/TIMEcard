@@ -30,8 +30,9 @@ auth_url = f"{auth_uri}?{urlencode(params)}"
 st.markdown(f"[🔐 Googleでログイン]({auth_url})")
 
 # 認証コードの取得
-query_params = st.experimental_get_query_params()
-access_token = None
+query_params = st.query_params
+code = query_params.get("code", [None])[0]  # ← 安全なアクセス方法
+
 
 if "code" in query_params:
     code = query_params["code"][0]
