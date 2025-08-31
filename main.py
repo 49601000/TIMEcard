@@ -1,27 +1,37 @@
 import streamlit as st
-from ui import user_selector, punch_buttons
+import requests
+import json
+from ui import (
+    show_title,
+    user_selector,
+    punch_buttons,
+    show_auth_status,
+    show_punch_result,
+    show_login_link
+)
 from logic import record_punch
 
+# スタッフリストとDriveフォルダID（必要に応じて変更）
 staff_list = ["田中", "佐藤", "鈴木", "オプティカル"]
+folder_id = "1-3Dc_yKjZQt8kJD_xlRFmuH4RKAxf_Jb"
 
-st.title("🕒 タイムカード打刻")
+# タイトル表示
+show_title()
 
-# 認証コードの取得
+# 認証コードの取得（安全な方法）
 query_params = st.query_params
-code = query_params.get("code", [None])[0]  # ← 安全なアクセス方法
+code = query_params.get("code", [None])[0]
+access_token = None
 
-if "code" in query_params:
-    # トークン取得処理（client_id などは st.secrets から取得）
-    import requests
-    import json
-
+# 認証処理
+if code:
     client_id = st.secrets["web"]["client_id"]
     client_secret = st.secrets["web"]["client_secret"]
     redirect_uri = "https://timecard-xvsby8ih4cxk6npxpyjmnf.streamlit.app/"
     token_uri = st.secrets["web"]["token_uri"]
 
     token_data = {
-        "code": query_params["code"][0],
+        "code": code,
         "client_id": client_id,
         "client_secret": client_secret,
         "redirect_uri": redirect_uri,
@@ -32,8 +42,23 @@ if "code" in query_params:
     token_json = token_response.json()
     access_token = token_json.get("access_token")
 
-    if access_token:
-        st.success("✅ Google認証に成功しました")
-    else:
-        st.error("❌ 認証失敗")
-        st.write(token_json)
+    show_auth_status(access_token is not None, token_json)
+
+# 認証済みなら打刻UIを表示
+if access_token:
+    name = user_selector(staff_list)
+    punch_in, punch_out = punch_buttons()
+
+    if punch_in and name:
+        timestamp, success = record_punch(name, "出勤", access_token, folder_id)
+        show_punch_result(name, timestamp, "in" if success else "error")
+
+    if punch_out and name:
+        timestamp, success = record_punch(name, "退勤", access_token, folder_id)
+        show_punch_result(name, timestamp, "out" if success else "error")
+
+# 未認証ならログインリンクを表示
+else:
+    client_id = st.secrets["web"]["client_id"]
+    redirect_uri = "https://timecard-xvsby8ih4cxk6npxpyjmnf.streamlit.app/"
+    show_login_link(client_id, redirect_uri)
