@@ -32,5 +32,10 @@ def record_punch(name, mode):
     os.makedirs(base_dir, exist_ok=True)
     updated.to_csv(filepath, index=False)
     st.write("✅ CSV保存完了")
-
     return timestamp
+    updated.to_csv(filepath, index=False)
+    
+    if os.path.exists(filepath):
+        st.success("✅ ファイル保存を確認しました")
+    else:
+        st.error("❌ ファイル保存に失敗しました（パスが無効かも）")
