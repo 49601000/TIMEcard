@@ -59,7 +59,7 @@ def upload_to_drive(access_token, filename, csv_data):
     }
     metadata = {
         "name": filename,
-        "mimeType": "application/vnd.google-apps.spreadsheet"
+        "mimeType": "application/vnd.google-apps.spreadsheet",
         "parents": ["1-3Dc_yKjZQt8kJD_xlRFmuH4RKAxf_Jb"]
     }
     files = {
