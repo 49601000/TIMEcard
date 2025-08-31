@@ -13,10 +13,13 @@ name = user_selector(staff_list)
 punch_in, punch_out = punch_buttons()
 
 # 打刻処理
-if punch_in:
-    time = record_punch(name, "出勤", access_token)
-    st.success(f"{name} さんが {time} に出勤しました")
+if access_token:
+    if punch_in and name:
+        time = record_punch(name, "出勤", access_token)
+        st.success(f"{name} さんが {time} に出勤しました")
 
-if punch_out:
-    time = record_punch(name, "退勤", access_token)
-    st.warning(f"{name} さんが {time} に退勤しました")
+    if punch_out and name:
+        time = record_punch(name, "退勤", access_token)
+        st.warning(f"{name} さんが {time} に退勤しました")
+else:
+    st.error("❌ Google認証が完了していません。ログインしてください。")
