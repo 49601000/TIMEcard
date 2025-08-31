@@ -26,6 +26,9 @@ def record_punch(name, mode):
     else:
         updated = new_record
 
+    # 保存前にディレクトリが存在するか確認・作成
+    os.makedirs(base_dir, exist_ok=True)
+
     # 保存
     updated.to_csv(filepath, index=False)
     return timestamp
