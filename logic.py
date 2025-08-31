@@ -3,6 +3,7 @@ import requests
 import json
 from datetime import datetime
 
+#1. 打刻データの生成
 def generate_punch_record(name, mode):
     """
     打刻データを生成し、ファイル名・時刻・DataFrameを返す
@@ -20,7 +21,7 @@ def generate_punch_record(name, mode):
 
     return filename, timestamp, record_df
 
-
+#2. Google Driveへのアップロード処理
 def upload_to_drive(access_token, filename, csv_data, folder_id=None):
     """
     Google Drive にCSVをアップロードする
@@ -50,7 +51,7 @@ def upload_to_drive(access_token, filename, csv_data, folder_id=None):
 
     return response.status_code in [200, 201]
 
-
+#3. 打刻処理の統合関数（UIなし）
 def record_punch(name, mode, access_token, folder_id=None):
     """
     打刻処理の統合関数：データ生成 → CSV化 → Driveアップロード
