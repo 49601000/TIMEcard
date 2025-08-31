@@ -6,20 +6,34 @@ staff_list = ["田中", "佐藤", "鈴木", "オプティカル"]
 
 st.title("🕒 タイムカード打刻")
 
-# ユーザー選択
-name = user_selector(staff_list)
+# 認証コードの取得
+query_params = st.experimental_get_query_params()
+access_token = None  # ← これが必要！
 
-# 打刻ボタン
-punch_in, punch_out = punch_buttons()
+if "code" in query_params:
+    # トークン取得処理（client_id などは st.secrets から取得）
+    import requests
+    import json
 
-# 打刻処理
-if access_token:
-    if punch_in and name:
-        time = record_punch(name, "出勤", access_token)
-        st.success(f"{name} さんが {time} に出勤しました")
+    client_id = st.secrets["web"]["client_id"]
+    client_secret = st.secrets["web"]["client_secret"]
+    redirect_uri = "https://timecard-xvsby8ih4cxk6npxpyjmnf.streamlit.app/"
+    token_uri = st.secrets["web"]["token_uri"]
 
-    if punch_out and name:
-        time = record_punch(name, "退勤", access_token)
-        st.warning(f"{name} さんが {time} に退勤しました")
-else:
-    st.error("❌ Google認証が完了していません。ログインしてください。")
+    token_data = {
+        "code": query_params["code"][0],
+        "client_id": client_id,
+        "client_secret": client_secret,
+        "redirect_uri": redirect_uri,
+        "grant_type": "authorization_code"
+    }
+
+    token_response = requests.post(token_uri, data=token_data)
+    token_json = token_response.json()
+    access_token = token_json.get("access_token")
+
+    if access_token:
+        st.success("✅ Google認証に成功しました")
+    else:
+        st.error("❌ 認証失敗")
+        st.write(token_json)
