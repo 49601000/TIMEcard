@@ -7,7 +7,7 @@ staff_list = ["田中", "佐藤", "鈴木", "オプティカル"]
 st.title("🕒 タイムカード打刻")
 
 # 認証コードの取得
-query_params = st.experimental_get_query_params()
+query_params = st.query_params
 access_token = None  # ← これが必要！
 
 if "code" in query_params:
