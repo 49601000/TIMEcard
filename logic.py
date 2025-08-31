@@ -12,7 +12,7 @@ auth_uri = st.secrets["web"]["auth_uri"]
 token_uri = st.secrets["web"]["token_uri"]
 
 # Streamlit Cloud のリダイレクトURI（Google Cloud Consoleに登録済み）
-redirect_uri = "https://<your-app>.streamlit.app"  # ← 実際のURLに置き換えてください
+redirect_uri = "https://timecard-xvsby8ih4cxk6npxpyjmnf.streamlit.app/"  # ← 実際のURLに置き換えてください
 
 # Google Drive API のスコープ
 scope = "https://www.googleapis.com/auth/drive.file"
