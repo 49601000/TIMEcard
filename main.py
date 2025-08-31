@@ -14,9 +14,9 @@ punch_in, punch_out = punch_buttons()
 
 # 打刻処理
 if punch_in:
-    time = record_punch(name, "出勤")
+    time = record_punch(name, "出勤", access_token)
     st.success(f"{name} さんが {time} に出勤しました")
 
 if punch_out:
-    time = record_punch(name, "退勤")
+    time = record_punch(name, "退勤", access_token)
     st.warning(f"{name} さんが {time} に退勤しました")
