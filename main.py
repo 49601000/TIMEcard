@@ -9,27 +9,34 @@ from ui import (
     show_punch_result,
     show_login_link
 )
-from logic import record_punch
+from logic import (
+    record_punch,
+    save_refresh_token_to_drive,
+    load_refresh_token_from_drive,
+    get_access_token_from_refresh_token
+)
 
-# スタッフリストとDriveフォルダID（必要に応じて変更）
+# 初期化
+if "access_token" not in st.session_state:
+    st.session_state.access_token = None
+
+# 固定情報
 staff_list = ["田中", "佐藤", "鈴木", "オプティカル"]
 folder_id = "1-3Dc_yKjZQt8kJD_xlRFmuH4RKAxf_Jb"
+client_id = st.secrets["web"]["client_id"]
+client_secret = st.secrets["web"]["client_secret"]
+token_uri = st.secrets["web"]["token_uri"]
+redirect_uri = "https://timecard-xvsby8ih4cxk6npxpyjmnf.streamlit.app/"
 
 # タイトル表示
 show_title()
 
-# 認証コードの取得（安全な方法）
+# 認証コードの取得
 query_params = st.query_params
 code = query_params.get("code", [None])[0]
-access_token = None
 
-# 認証処理
+# 初回認証フロー（codeがある場合）
 if code:
-    client_id = st.secrets["web"]["client_id"]
-    client_secret = st.secrets["web"]["client_secret"]
-    redirect_uri = "https://timecard-xvsby8ih4cxk6npxpyjmnf.streamlit.app/"
-    token_uri = st.secrets["web"]["token_uri"]
-
     token_data = {
         "code": code,
         "client_id": client_id,
@@ -41,24 +48,52 @@ if code:
     token_response = requests.post(token_uri, data=token_data)
     token_json = token_response.json()
     access_token = token_json.get("access_token")
+    refresh_token = token_json.get("refresh_token")
 
     show_auth_status(access_token is not None, token_json)
 
+    if access_token and refresh_token:
+        # refresh_token を Drive に保存
+        save_refresh_token_to_drive(refresh_token, access_token, folder_id)
+        st.session_state.access_token = access_token
+
+# 自動認証フロー（codeがない場合）
+elif st.session_state.access_token is None:
+    try:
+        # まずは一時的な access_token を取得（Driveアクセス用）
+        temp_token_data = {
+            "client_id": client_id,
+            "client_secret": client_secret,
+            "grant_type": "client_credentials"
+        }
+        temp_response = requests.post(token_uri, data=temp_token_data)
+        temp_token = temp_response.json().get("access_token")
+
+        # Driveから refresh_token を読み込み
+        saved_refresh_token = load_refresh_token_from_drive(temp_token, folder_id)
+
+        if saved_refresh_token:
+            new_access_token = get_access_token_from_refresh_token(
+                saved_refresh_token, client_id, client_secret, token_uri
+            )
+            st.session_state.access_token = new_access_token
+            st.success("🔄 自動ログインに成功しました")
+        else:
+            show_login_link(client_id, redirect_uri)
+    except Exception as e:
+        st.error("❌ 自動認証に失敗しました")
+        st.write(e)
+        show_login_link(client_id, redirect_uri)
+
 # 認証済みなら打刻UIを表示
-if access_token:
+if st.session_state.access_token:
     name = user_selector(staff_list)
     punch_in, punch_out = punch_buttons()
 
     if punch_in and name:
-        timestamp, success = record_punch(name, "出勤", access_token, folder_id)
+        timestamp, success = record_punch(name, "出勤", st.session_state.access_token, folder_id)
         show_punch_result(name, timestamp, "in" if success else "error")
 
     if punch_out and name:
-        timestamp, success = record_punch(name, "退勤", access_token, folder_id)
+        timestamp, success = record_punch(name, "退勤", st.session_state.access_token, folder_id)
         show_punch_result(name, timestamp, "out" if success else "error")
-
-# 未認証ならログインリンクを表示
-else:
-    client_id = st.secrets["web"]["client_id"]
-    redirect_uri = "https://timecard-xvsby8ih4cxk6npxpyjmnf.streamlit.app/"
-    show_login_link(client_id, redirect_uri)
