@@ -32,4 +32,4 @@ def record_punch(name, mode):
     # 保存
     updated.to_csv(filepath, index=False)
     return timestamp
-    print("CSV保存完了")
+    st.success("CSV保存完了")
