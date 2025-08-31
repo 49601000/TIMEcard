@@ -8,7 +8,7 @@ st.title("🕒 タイムカード打刻")
 
 # 認証コードの取得
 query_params = st.query_params
-access_token = None  # ← これが必要！
+code = query_params.get("code", [None])[0]  # ← 安全なアクセス方法
 
 if "code" in query_params:
     # トークン取得処理（client_id などは st.secrets から取得）
