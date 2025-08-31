@@ -1,7 +1,7 @@
 streamlit
 pandas
 requests
-google-api-python-client
+google-api-python-client==2.179.0
 google-auth
 google-auth-httplib2
 google-auth-oauthlib
