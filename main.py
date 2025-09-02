@@ -54,16 +54,23 @@ if code:
     show_auth_status(access_token is not None, token_json)
 
     if access_token and refresh_token:
-        # refresh_token を Drive に保存
-        save_refresh_token_to_drive(refresh_token, access_token, folder_id)
-        st.session_state.access_token = access_token
+    # refresh_token を Drive に保存
+    save_refresh_token_to_drive(refresh_token, access_token, folder_id)
+
+    # ✅ 初回取得した access_token を session_state に保存
+    st.session_state.access_token = access_token
+    st.session_state.initial_access_token = access_token
 
 # 自動認証フロー（codeがない場合）
 elif st.session_state.access_token is None:
     try:
-        # Driveアクセス用の access_token は不要 → refresh_token を直接使う
-        # ここでは、保存済みの refresh_token を使って access_token を再取得
-        saved_refresh_token = load_refresh_token_from_drive(access_token="YOUR_MANUAL_ACCESS_TOKEN", folder_id=folder_id)
+        # ✅ ここで手動取得した access_token を使って Drive にアクセス
+        manual_access_token = "ya29.A0AS3H6NxtQdQ3D9xV-wrON47RXheraR6S9XjNR3AB055XLf5PHJfG8FBqpGlnELUNpdDlMsH-RJDiErHbDFkAqe3gKAHYvpofjoFmc9ubia7EutPsZ7U8_h6fgictjwdlArigpw1qSlRDov1iEvQaYDRIF-OLWcMfuDCapOlUDwIqDSLsLIFilPugoiyvVHEOkmmFBNMaCgYKAWQSARcSFQHGX2MiIUtpsxZWSN37JNSLjO8bpA0206"
+
+        saved_refresh_token = load_refresh_token_from_drive(
+            access_token=manual_access_token,
+            folder_id=folder_id
+        )
 
         if saved_refresh_token:
             new_access_token = get_access_token_from_refresh_token(
