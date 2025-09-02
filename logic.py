@@ -7,13 +7,12 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseUpload, MediaIoBaseDownload
 from google.oauth2.credentials import Credentials
 
-# 1. refresh_token を Drive に保存（上書き対応）
+# 🔐 1. refresh_token を Drive に保存（上書き対応）
 def save_refresh_token_to_drive(refresh_token, access_token, folder_id):
     try:
         creds = Credentials(token=access_token)
         service = build("drive", "v3", credentials=creds)
 
-        # 既存ファイル検索
         query = f"'{folder_id}' in parents and name='refresh_token.csv'"
         results = service.files().list(q=query, fields="files(id)").execute()
         files = results.get("files", [])
@@ -22,11 +21,9 @@ def save_refresh_token_to_drive(refresh_token, access_token, folder_id):
         media = MediaIoBaseUpload(StringIO(csv_content), mimetype="text/csv")
 
         if files:
-            # 上書き
             file_id = files[0]["id"]
             service.files().update(fileId=file_id, media_body=media).execute()
         else:
-            # 新規作成
             file_metadata = {
                 "name": "refresh_token.csv",
                 "parents": [folder_id],
@@ -36,7 +33,7 @@ def save_refresh_token_to_drive(refresh_token, access_token, folder_id):
     except Exception as e:
         print("❌ refresh_token 保存失敗:", e)
 
-# 2. Driveから refresh_token.csv を読み込む
+# 📥 2. Driveから refresh_token.csv を読み込む
 def load_refresh_token_from_drive(access_token, folder_id):
     try:
         creds = Credentials(token=access_token)
@@ -64,7 +61,7 @@ def load_refresh_token_from_drive(access_token, folder_id):
         print("❌ refresh_token 読み込み失敗:", e)
         return None
 
-# 3. refresh_token から access_token を再取得
+# 🔄 3. refresh_token から access_token を再取得
 def get_access_token_from_refresh_token(refresh_token, client_id, client_secret, token_uri):
     try:
         refresh_data = {
@@ -82,7 +79,7 @@ def get_access_token_from_refresh_token(refresh_token, client_id, client_secret,
         print("❌ access_token 再取得失敗:", e)
         return None
 
-# 4. 打刻データの生成
+# 🕒 4. 打刻データの生成
 def generate_punch_record(name, mode):
     now = datetime.now()
     timestamp = now.strftime("%Y-%m-%d %H:%M:%S")
@@ -97,13 +94,31 @@ def generate_punch_record(name, mode):
 
     return filename, timestamp, record_df
 
-# 5. Google Drive にCSVを追記保存
+# 📁 5. フォルダの存在確認と自動作成
+def ensure_folder_exists(folder_name, access_token):
+    creds = Credentials(token=access_token)
+    service = build("drive", "v3", credentials=creds)
+
+    query = f"name='{folder_name}' and mimeType='application/vnd.google-apps.folder'"
+    results = service.files().list(q=query, fields="files(id)").execute()
+    files = results.get("files", [])
+
+    if files:
+        return files[0]["id"]
+    else:
+        metadata = {
+            "name": folder_name,
+            "mimeType": "application/vnd.google-apps.folder"
+        }
+        folder = service.files().create(body=metadata, fields="id").execute()
+        return folder.get("id")
+
+# 📤 6. Google Drive にCSVを追記保存
 def upload_to_drive(access_token, filename, new_csv_data, folder_id=None):
     try:
         creds = Credentials(token=access_token)
         service = build("drive", "v3", credentials=creds)
 
-        # ファイル検索
         query = f"name='{filename}'"
         if folder_id:
             query += f" and '{folder_id}' in parents"
@@ -112,7 +127,6 @@ def upload_to_drive(access_token, filename, new_csv_data, folder_id=None):
         files = results.get("files", [])
 
         if files:
-            # 既存ファイルに追記
             file_id = files[0]["id"]
             request = service.files().get_media(fileId=file_id)
             fh = BytesIO()
@@ -130,7 +144,6 @@ def upload_to_drive(access_token, filename, new_csv_data, folder_id=None):
             media = MediaIoBaseUpload(BytesIO(updated_csv), mimetype="text/csv")
             service.files().update(fileId=file_id, media_body=media).execute()
         else:
-            # 新規作成
             media = MediaIoBaseUpload(BytesIO(new_csv_data), mimetype="text/csv")
             metadata = {
                 "name": filename,
@@ -146,8 +159,12 @@ def upload_to_drive(access_token, filename, new_csv_data, folder_id=None):
         print("❌ CSVアップロード失敗:", e)
         return False
 
-# 6. 打刻処理の統合関数
-def record_punch(name, mode, access_token, folder_id=None):
+# 🧩 7. 打刻処理の統合関数（フォルダ自動作成付き）
+def record_punch(name, mode, access_token, folder_name=None):
+    folder_id = None
+    if folder_name:
+        folder_id = ensure_folder_exists(folder_name, access_token)
+
     filename, timestamp, df = generate_punch_record(name, mode)
     csv_data = df.to_csv(index=False).encode("utf-8")
     success = upload_to_drive(access_token, filename, csv_data, folder_id)
