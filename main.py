@@ -58,6 +58,7 @@ if code:
         save_refresh_token_to_drive(refresh_token, access_token, folder_id)
     
     # ✅ 初回取得した access_token を session_state に保存
+    st.write("🔍 認証コード:", code)
     st.session_state.access_token = access_token
     st.session_state.initial_access_token = access_token
 
