@@ -54,9 +54,9 @@ if code:
     show_auth_status(access_token is not None, token_json)
 
     if access_token and refresh_token:
-    # refresh_token を Drive に保存
-    save_refresh_token_to_drive(refresh_token, access_token, folder_id)
-
+        # refresh_token を Drive に保存
+        save_refresh_token_to_drive(refresh_token, access_token, folder_id)
+    
     # ✅ 初回取得した access_token を session_state に保存
     st.session_state.access_token = access_token
     st.session_state.initial_access_token = access_token
@@ -64,11 +64,9 @@ if code:
 # 自動認証フロー（codeがない場合）
 elif st.session_state.access_token is None:
     try:
-        # ✅ ここで手動取得した access_token を使って Drive にアクセス
-        manual_access_token = "ya29.A0AS3H6NxtQdQ3D9xV-wrON47RXheraR6S9XjNR3AB055XLf5PHJfG8FBqpGlnELUNpdDlMsH-RJDiErHbDFkAqe3gKAHYvpofjoFmc9ubia7EutPsZ7U8_h6fgictjwdlArigpw1qSlRDov1iEvQaYDRIF-OLWcMfuDCapOlUDwIqDSLsLIFilPugoiyvVHEOkmmFBNMaCgYKAWQSARcSFQHGX2MiIUtpsxZWSN37JNSLjO8bpA0206"
-
+        # ✅ 初回保存した access_token を使って refresh_token.csv を読み込む
         saved_refresh_token = load_refresh_token_from_drive(
-            access_token=manual_access_token,
+            access_token=st.session_state.initial_access_token,
             folder_id=folder_id
         )
 
@@ -84,6 +82,7 @@ elif st.session_state.access_token is None:
         st.error("❌ 自動認証に失敗しました")
         st.write(e)
         show_login_link(client_id, redirect_uri)
+
 
 # 認証済みなら打刻UIを表示
 if st.session_state.access_token:
