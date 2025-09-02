@@ -61,17 +61,9 @@ if code:
 # 自動認証フロー（codeがない場合）
 elif st.session_state.access_token is None:
     try:
-        # まずは一時的な access_token を取得（Driveアクセス用）
-        temp_token_data = {
-            "client_id": client_id,
-            "client_secret": client_secret,
-            "grant_type": "client_credentials"
-        }
-        temp_response = requests.post(token_uri, data=temp_token_data)
-        temp_token = temp_response.json().get("access_token")
-
-        # Driveから refresh_token を読み込み
-        saved_refresh_token = load_refresh_token_from_drive(temp_token, folder_id)
+        # Driveアクセス用の access_token は不要 → refresh_token を直接使う
+        # ここでは、保存済みの refresh_token を使って access_token を再取得
+        saved_refresh_token = load_refresh_token_from_drive(access_token="YOUR_MANUAL_ACCESS_TOKEN", folder_id=folder_id)
 
         if saved_refresh_token:
             new_access_token = get_access_token_from_refresh_token(
