@@ -30,6 +30,22 @@ client_secret = st.secrets["web"]["client_secret"]
 token_uri = st.secrets["web"]["token_uri"]
 redirect_uri = st.secrets["web"]["redirect_uri"]
 
+
+######################################################
+import urllib.parse
+
+current_url = st.experimental_get_query_params()
+base_url = st.request.host  # Streamlitのホスト名（例: timecard-xxxxx.streamlit.app）
+
+expected_redirect_uri = urllib.parse.urlparse(redirect_uri).netloc
+st.write("🌐 現在のホスト:", base_url)
+st.write("✅ redirect_uri のホスト:", expected_redirect_uri)
+
+if base_url != expected_redirect_uri:
+    st.warning("⚠️ redirect_uri が現在のホストと一致していません")
+    
+######################################################
+
 st.write("📦 client_id:", client_id)
 st.write("🔐 client_secret:", client_secret[:4] + "••••••••")
 st.write("🌐 token_uri:", token_uri)
