@@ -160,6 +160,8 @@ if st.session_state.access_token:
     if punch_in and name:
         timestamp, success, filename = record_punch(name, "出勤", st.session_state.access_token, folder_id)
         show_punch_result(name, timestamp, "in" if success else "error")
+        check_file_exists(filename, st.session_state.access_token, folder_id)
+
     ###############################################
     from googleapiclient.discovery import build
     from google.oauth2.credentials import Credentials
