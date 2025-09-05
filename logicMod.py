@@ -156,7 +156,8 @@ def upload_to_drive(access_token, filename, new_csv_data, folder_id=None):
 
         return True
     except Exception as e:
-        print("❌ CSVアップロード失敗:", e)
+        st.error("❌ CSVアップロード失敗")
+        st.write(e)
         return False
 
 # 🧩 7. 打刻処理の統合関数（フォルダ自動作成付き）
