@@ -40,7 +40,9 @@ st.write("📁 folder_id:", folder_id)
 show_title()
 
 # 🔍 Step 2: 認証コードの取得
-st.write("🔍 全クエリパラメータ:", st.query_params)  # ← ここに入れる！
+if "code_used" not in st.session_state:
+    st.session_state.code_used = False
+#st.write("🔍 全クエリパラメータ:", st.query_params)  # ← ここに入れる！
 query_params = st.query_params
 code = query_params.get("code")
 
@@ -50,7 +52,7 @@ if isinstance(code, list):
 st.write("🔍 認証コード:", code)
 
 # 🚪 Step 3: 初回認証フロー（codeがある場合）
-if code:
+if code and not st.session_state.code_used:
     st.write("🚪 Step 3: 認証コードあり → access_token を取得します")
 
     token_data = {
@@ -79,6 +81,8 @@ if code:
 
     st.session_state.access_token = access_token
     st.session_state.initial_access_token = access_token
+    st.session_state.code_used = True  # ✅ 再利用防止フラグ
+
     st.success("✅ access_token をセッションに保存しました")
 
     # ✅ 認証コードをURLから消す
