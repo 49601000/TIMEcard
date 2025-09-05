@@ -30,6 +30,11 @@ client_id = st.secrets["web"]["client_id"]
 client_secret = st.secrets["web"]["client_secret"]
 token_uri = st.secrets["web"]["token_uri"]
 redirect_uri = st.secrets["web"]["redirect_uri"]
+st.write("📦 client_id:", client_id)
+st.write("🔐 client_secret:", client_secret)
+st.write("🌐 token_uri:", token_uri)
+st.write("↩️ redirect_uri:", redirect_uri)
+st.write("📁 folder_id:", folder_id)
 
 
 if st.session_state.initial_access_token:
