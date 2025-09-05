@@ -85,8 +85,14 @@ elif st.session_state.access_token is None:
 
         if saved_refresh_token:
             new_access_token = get_access_token_from_refresh_token(
-                saved_refresh_token, client_id, client_secret, token_uri
+                refresh_token=saved_refresh_token,
+                client_id=st.secrets["web"]["client_id"],
+                client_secret=st.secrets["web"]["client_secret"],
+                token_uri=st.secrets["web"]["token_uri"]
             )
+            st.session_state.access_token = new_access_token
+            st.success("🔄 自動ログインに成功しました")
+
             st.session_state.access_token = new_access_token
             st.success("🔄 自動ログインに成功しました")
         else:
