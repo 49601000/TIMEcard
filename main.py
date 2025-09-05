@@ -42,7 +42,11 @@ show_title()
 # 🔍 Step 2: 認証コードの取得
 st.write("🔍 全クエリパラメータ:", st.query_params)  # ← ここに入れる！
 query_params = st.query_params
-code = query_params.get("code", [None])[0]
+code = query_params.get("code")
+
+if isinstance(code, list):
+    code = code[0]
+
 st.write("🔍 認証コード:", code)
 
 # 🚪 Step 3: 初回認証フロー（codeがある場合）
