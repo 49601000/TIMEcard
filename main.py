@@ -103,6 +103,7 @@ elif st.session_state.access_token is None:
     st.write("🔄 Step 4: code がない → 自動認証フロー開始")
 
     try:
+        # ✅ Step 4.1: refresh_token.csv を読み込み
         if st.session_state.initial_access_token:
             st.write("📥 Step 4.1: initial_access_token あり → refresh_token.csv を読み込みます")
             saved_refresh_token = load_refresh_token_from_drive(
@@ -114,6 +115,7 @@ elif st.session_state.access_token is None:
             st.warning("⚠️ Step 4.1: initial_access_token が未設定です")
             saved_refresh_token = None
 
+        # ✅ Step 4.3: refresh_token があれば access_token を再取得
         if saved_refresh_token:
             st.write("🚀 Step 4.3: access_token を再取得します")
             new_access_token = get_access_token_from_refresh_token(
@@ -124,8 +126,12 @@ elif st.session_state.access_token is None:
             )
             st.write("🔑 Step 4.4: 新しい access_token:", new_access_token)
 
-            st.session_state.access_token = new_access_token
-            st.success("✅ Step 4.5: 自動ログインに成功しました")
+            if new_access_token:
+                st.session_state.access_token = new_access_token
+                st.success("✅ Step 4.5: 自動ログインに成功しました")
+            else:
+                st.warning("⚠️ Step 4.4: access_token の取得に失敗しました")
+                show_login_link(client_id, redirect_uri)
         else:
             st.warning("⚠️ Step 4.3: refresh_token が取得できませんでした")
             show_login_link(client_id, redirect_uri)
@@ -144,7 +150,7 @@ elif st.session_state.access_token is None:
             "prompt=consent"
         )
         st.markdown(f"[🔐 Google認証を開始する]({auth_url})")
-
+        
 # 🕒 Step 5: 認証済みなら打刻UIを表示
 if st.session_state.access_token:
     st.write("🕒 Step 5: access_token がある → 打刻UIを表示します")
