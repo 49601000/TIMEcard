@@ -151,6 +151,9 @@ def upload_to_drive(access_token, filename, new_csv_data, folder_id=None):
             }
             if folder_id:
                 metadata["parents"] = [folder_id]
+            response = service.files().create(body=metadata, media_body=media, fields="id, name, parents").execute()
+            st.write("📄 作成されたファイル情報:", response)
+
 
             service.files().create(body=metadata, media_body=media, fields="id").execute()
 
