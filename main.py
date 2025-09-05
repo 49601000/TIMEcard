@@ -16,6 +16,27 @@ from logicMod import (
     load_refresh_token_from_drive,
     get_access_token_from_refresh_token
 )
+from googleapiclient.discovery import build
+from google.oauth2.credentials import Credentials
+
+def check_file_exists(filename, access_token, folder_id=None):
+    creds = Credentials(token=access_token)
+    service = build("drive", "v3", credentials=creds)
+
+    query = f"name='{filename}'"
+    if folder_id:
+        query += f" and '{folder_id}' in parents"
+
+    results = service.files().list(q=query, fields="files(id, name)").execute()
+    files = results.get("files", [])
+
+    if files:
+        st.success(f"✅ ファイル '{filename}' は Drive に存在します")
+        return True
+    else:
+        st.warning(f"⚠️ ファイル '{filename}' は Drive に存在しません")
+        return False
+
 
 # 🧩 Step 0: セッションステート初期化
 if "code_used" not in st.session_state:
