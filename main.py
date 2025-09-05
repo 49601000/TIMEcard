@@ -36,10 +36,6 @@ if st.session_state.initial_access_token:
         access_token=st.session_state.initial_access_token,
         folder_id=folder_id
     )
-    st.write("📄 refresh_token 読み込み結果:", saved_refresh_token)
-else:
-    st.warning("⚠️ initial_access_token が未設定です")
-
 
 # タイトル表示
 show_title()
@@ -47,6 +43,7 @@ show_title()
 # 認証コードの取得
 query_params = st.query_params
 code = query_params.get("code", [None])[0]
+st.write("🔍 認証コード:", code)
 
 # 初回認証フロー（codeがある場合）
 if code:
