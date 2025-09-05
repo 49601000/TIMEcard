@@ -19,6 +19,13 @@ from logic import (
 # 初期化
 if "access_token" not in st.session_state:
     st.session_state.access_token = None
+# イニシャルトークン    
+if st.session_state.initial_access_token:
+    saved_refresh_token = load_refresh_token_from_drive(
+        access_token=st.session_state.initial_access_token,
+        folder_id=folder_id
+    )
+
 
 # 固定情報
 staff_list = ["田中", "佐藤", "鈴木", "オプティカル"]
