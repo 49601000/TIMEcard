@@ -18,10 +18,13 @@ from logicMod import (
 )
 
 # 🧩 Step 0: セッションステート初期化
+if "code_used" not in st.session_state:
+    st.session_state.code_used = False
 if "access_token" not in st.session_state:
     st.session_state.access_token = None
 if "initial_access_token" not in st.session_state:
     st.session_state.initial_access_token = None
+    
 
 # 📦 Step 1: 固定情報の取得
 staff_list = ["田中", "佐藤", "鈴木", "オプティカル"]
