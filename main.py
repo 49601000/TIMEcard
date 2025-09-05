@@ -58,6 +58,8 @@ if code:
     }
 
     token_response = requests.post(token_uri, data=token_data)
+    st.write("🧾 トークンレスポンス:", token_response.text)  # ← Googleのレスポンスを確認
+
     token_json = token_response.json()
     access_token = token_json.get("access_token")
     refresh_token = token_json.get("refresh_token")
