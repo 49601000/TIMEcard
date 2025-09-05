@@ -16,14 +16,13 @@ from logic import (
     get_access_token_from_refresh_token
 )
 
-# 初期化
+# 🧩 Step 0: セッションステート初期化
 if "access_token" not in st.session_state:
     st.session_state.access_token = None
-# イニシャルトークン   
 if "initial_access_token" not in st.session_state:
     st.session_state.initial_access_token = None
 
-# 固定情報
+# 📦 Step 1: 固定情報の取得
 staff_list = ["田中", "佐藤", "鈴木", "オプティカル"]
 folder_id = "1-3Dc_yKjZQt8kJD_xlRFmuH4RKAxf_Jb"
 client_id = st.secrets["web"]["client_id"]
@@ -31,22 +30,24 @@ client_secret = st.secrets["web"]["client_secret"]
 token_uri = st.secrets["web"]["token_uri"]
 redirect_uri = st.secrets["web"]["redirect_uri"]
 
-if st.session_state.initial_access_token:
-    saved_refresh_token = load_refresh_token_from_drive(
-        access_token=st.session_state.initial_access_token,
-        folder_id=folder_id
-    )
+st.write("📦 client_id:", client_id)
+st.write("🔐 client_secret:", client_secret[:4] + "••••••••")
+st.write("🌐 token_uri:", token_uri)
+st.write("↩️ redirect_uri:", redirect_uri)
+st.write("📁 folder_id:", folder_id)
 
-# タイトル表示
+# 🖼️ タイトル表示
 show_title()
 
-# 認証コードの取得
+# 🔍 Step 2: 認証コードの取得
 query_params = st.query_params
 code = query_params.get("code", [None])[0]
 st.write("🔍 認証コード:", code)
 
-# 初回認証フロー（codeがある場合）
+# 🚪 Step 3: 初回認証フロー（codeがある場合）
 if code:
+    st.write("🚪 Step 3: 認証コードあり → access_token を取得します")
+
     token_data = {
         "code": code,
         "client_id": client_id,
@@ -62,52 +63,53 @@ if code:
 
     show_auth_status(access_token is not None, token_json)
 
+    st.write("🔑 access_token:", access_token)
+    st.write("🔁 refresh_token:", refresh_token)
+
     if access_token and refresh_token:
-        # refresh_token を Drive に保存
         save_refresh_token_to_drive(refresh_token, access_token, folder_id)
-    
-    # ✅ 初回取得した access_token を session_state に保存
-    st.write("🔍 認証コード:", code)
+        st.success("✅ refresh_token を Drive に保存しました")
+
     st.session_state.access_token = access_token
     st.session_state.initial_access_token = access_token
+    st.success("✅ access_token をセッションに保存しました")
 
-# 自動認証フロー（codeがない場合）
+# 🔄 Step 4: 自動認証フロー（codeがない場合）
 elif st.session_state.access_token is None:
+    st.write("🔄 Step 4: code がない → 自動認証フロー開始")
+
     try:
-        # ✅ 初回保存した access_token を使って refresh_token.csv を読み込む
         if st.session_state.initial_access_token:
+            st.write("📥 Step 4.1: initial_access_token あり → refresh_token.csv を読み込みます")
             saved_refresh_token = load_refresh_token_from_drive(
                 access_token=st.session_state.initial_access_token,
                 folder_id=folder_id
             )
+            st.write("📄 Step 4.2: refresh_token 読み込み結果:", saved_refresh_token)
         else:
+            st.warning("⚠️ Step 4.1: initial_access_token が未設定です")
             saved_refresh_token = None
 
         if saved_refresh_token:
+            st.write("🚀 Step 4.3: access_token を再取得します")
             new_access_token = get_access_token_from_refresh_token(
                 refresh_token=saved_refresh_token,
-                client_id=st.secrets["web"]["client_id"],
-                client_secret=st.secrets["web"]["client_secret"],
-                token_uri=st.secrets["web"]["token_uri"]
+                client_id=client_id,
+                client_secret=client_secret,
+                token_uri=token_uri
             )
-            st.write("🔍 refresh_token:", saved_refresh_token)
-            st.write("🔍 client_id:", st.secrets["web"]["client_id"])
-            st.write("🔍 client_secret:", st.secrets["web"]["client_secret"])
-            st.write("🔍 token_uri:", st.secrets["web"]["token_uri"])
-            
-            st.session_state.access_token = new_access_token
-            st.success("🔄 自動ログインに成功しました")
+            st.write("🔑 Step 4.4: 新しい access_token:", new_access_token)
 
             st.session_state.access_token = new_access_token
-            st.success("🔄 自動ログインに成功しました")
+            st.success("✅ Step 4.5: 自動ログインに成功しました")
         else:
+            st.warning("⚠️ Step 4.3: refresh_token が取得できませんでした")
             show_login_link(client_id, redirect_uri)
 
     except Exception as e:
-        st.error("❌ 自動認証に失敗しました")
+        st.error("❌ Step 4.X: 自動認証に失敗しました")
         st.write(e)
 
-        # 認証リンクを表示
         auth_url = (
             "https://accounts.google.com/o/oauth2/v2/auth?"
             f"client_id={client_id}&"
@@ -119,9 +121,9 @@ elif st.session_state.access_token is None:
         )
         st.markdown(f"[🔐 Google認証を開始する]({auth_url})")
 
-
-# 認証済みなら打刻UIを表示
+# 🕒 Step 5: 認証済みなら打刻UIを表示
 if st.session_state.access_token:
+    st.write("🕒 Step 5: access_token がある → 打刻UIを表示します")
     name = user_selector(staff_list)
     punch_in, punch_out = punch_buttons()
 
@@ -132,3 +134,5 @@ if st.session_state.access_token:
     if punch_out and name:
         timestamp, success = record_punch(name, "退勤", st.session_state.access_token, folder_id)
         show_punch_result(name, timestamp, "out" if success else "error")
+else:
+    st.warning("⚠️ access_token が未取得のため、打刻UIは表示されません")
