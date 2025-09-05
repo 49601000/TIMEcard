@@ -174,15 +174,13 @@ def record_punch(name, mode, access_token, folder_name=None):
     csv_data = df.to_csv(index=False).encode("utf-8")
     success, filename = upload_to_drive(access_token, filename, csv_data, folder_id)
     return timestamp, success, filename  
-    from googleapiclient.discovery import build
-from google.oauth2.credentials import Credentials
 
 # 🧩 ex. ファイルの存在を確認
 def check_file_exists(filename, access_token, folder_id=None):
     creds = Credentials(token=access_token)
     service = build("drive", "v3", credentials=creds)
 
-    query = f"name='{filename}'"
+    query = f"name='{filename}' and mimeType='text/csv'"
     if folder_id:
         query += f" and '{folder_id}' in parents"
 
@@ -195,4 +193,3 @@ def check_file_exists(filename, access_token, folder_id=None):
     else:
         st.warning(f"⚠️ ファイル '{filename}' は Drive に存在しません")
         return False
-
