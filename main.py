@@ -90,6 +90,11 @@ elif st.session_state.access_token is None:
                 client_secret=st.secrets["web"]["client_secret"],
                 token_uri=st.secrets["web"]["token_uri"]
             )
+            st.write("🔍 refresh_token:", saved_refresh_token)
+            st.write("🔍 client_id:", st.secrets["web"]["client_id"])
+            st.write("🔍 client_secret:", st.secrets["web"]["client_secret"])
+            st.write("🔍 token_uri:", st.secrets["web"]["token_uri"])
+            
             st.session_state.access_token = new_access_token
             st.success("🔄 自動ログインに成功しました")
 
