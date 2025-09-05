@@ -81,6 +81,15 @@ if code:
     st.session_state.initial_access_token = access_token
     st.success("✅ access_token をセッションに保存しました")
 
+    # ✅ 認証コードをURLから消す
+    st.markdown("""
+    <script>
+      const url = new URL(window.location);
+      url.searchParams.delete("code");
+      window.history.replaceState({}, '', url);
+    </script>
+    """, unsafe_allow_html=True)
+
 # 🔄 Step 4: 自動認証フロー（codeがない場合）
 elif st.session_state.access_token is None:
     st.write("🔄 Step 4: code がない → 自動認証フロー開始")
