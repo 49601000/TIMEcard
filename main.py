@@ -158,7 +158,7 @@ if st.session_state.access_token:
     punch_in, punch_out = punch_buttons()
 
     if punch_in and name:
-        timestamp, success = record_punch(name, "出勤", st.session_state.access_token, folder_id)
+        timestamp, success, filename = record_punch(name, "出勤", st.session_state.access_token, folder_id)
         show_punch_result(name, timestamp, "in" if success else "error")
     ###############################################
     from googleapiclient.discovery import build
@@ -187,7 +187,7 @@ if st.session_state.access_token:
         #############################################################
 
     if punch_out and name:
-        timestamp, success = record_punch(name, "退勤", st.session_state.access_token, folder_id)
+        timestamp, success, filename = record_punch(name, "退勤", st.session_state.access_token, folder_id)
         show_punch_result(name, timestamp, "out" if success else "error")
 else:
     st.warning("⚠️ access_token が未取得のため、打刻UIは表示されません")
