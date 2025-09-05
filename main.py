@@ -9,7 +9,7 @@ from ui import (
     show_punch_result,
     show_login_link
 )
-from logic import (
+from logicMod import (
     record_punch,
     save_refresh_token_to_drive,
     load_refresh_token_from_drive,
