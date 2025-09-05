@@ -171,6 +171,9 @@ if st.session_state.access_token:
         else:
             st.warning(f"⚠️ ファイル '{filename}' は Drive に存在しません")
             return False
+    filename = f"{datetime.now().strftime('%Y')}_timecard.csv"
+    check_file_exists(filename, st.session_state.access_token, folder_id)
+
         #############################################################
 
     if punch_out and name:
