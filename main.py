@@ -163,32 +163,6 @@ if st.session_state.access_token:
         show_punch_result(name, timestamp, "in" if success else "error")
         check_file_exists(filename, st.session_state.access_token, folder_id)
 
-    ###############################################
-    from googleapiclient.discovery import build
-    from google.oauth2.credentials import Credentials
-    
-    def check_file_exists(filename, access_token, folder_id=None):
-        creds = Credentials(token=access_token)
-        service = build("drive", "v3", credentials=creds)
-        
-        query = f"name='{filename}'"
-        if folder_id:
-            query += f" and '{folder_id}' in parents"
-        
-        results = service.files().list(q=query, fields="files(id, name)").execute()
-        files = results.get("files", [])
-        
-        if files:
-            st.success(f"✅ ファイル '{filename}' は Drive に存在します")
-            return True
-        else:
-            st.warning(f"⚠️ ファイル '{filename}' は Drive に存在しません")
-            return False
-    filename = f"{datetime.now().strftime('%Y')}_timecard.csv"
-    check_file_exists(filename, st.session_state.access_token, folder_id)
-
-        #############################################################
-
     if punch_out and name:
         timestamp, success, filename = record_punch(name, "退勤", st.session_state.access_token, folder_id)
         show_punch_result(name, timestamp, "out" if success else "error")
