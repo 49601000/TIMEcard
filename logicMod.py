@@ -158,7 +158,7 @@ def upload_to_drive(access_token, filename, new_csv_data, folder_id=None):
 
             service.files().create(body=metadata, media_body=media, fields="id").execute()
 
-        return True
+        return True, filename
     except Exception as e:
         st.error("❌ CSVアップロード失敗")
         st.write(e)
