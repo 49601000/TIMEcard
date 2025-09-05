@@ -147,7 +147,7 @@ def upload_to_drive(access_token, filename, new_csv_data, folder_id=None):
             media = MediaIoBaseUpload(BytesIO(new_csv_data), mimetype="text/csv")
             metadata = {
                 "name": filename,
-                "mimeType": "application/vnd.google-apps.spreadsheet"
+                "mimeType": "text/csv"
             }
             if folder_id:
                 metadata["parents"] = [folder_id]
