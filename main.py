@@ -30,20 +30,6 @@ client_secret = st.secrets["web"]["client_secret"]
 token_uri = st.secrets["web"]["token_uri"]
 redirect_uri = st.secrets["web"]["redirect_uri"]
 
-
-######################################################
-st.markdown("""
-<script>
-  const currentUrl = window.location.href;
-  const streamlitDoc = window.parent.document;
-  const urlDisplay = streamlitDoc.createElement('div');
-  urlDisplay.innerText = '🌐 現在のURL: ' + currentUrl;
-  streamlitDoc.body.appendChild(urlDisplay);
-</script>
-""", unsafe_allow_html=True)
-
-######################################################
-
 st.write("📦 client_id:", client_id)
 st.write("🔐 client_secret:", client_secret[:4] + "••••••••")
 st.write("🌐 token_uri:", token_uri)
