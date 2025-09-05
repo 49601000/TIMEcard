@@ -19,6 +19,8 @@ from logic import (
 # 初期化
 if "access_token" not in st.session_state:
     st.session_state.access_token = None
+if "initial_access_token" not in st.session_state:
+    st.session_state.initial_access_token = None
 # イニシャルトークン    
 if st.session_state.initial_access_token:
     saved_refresh_token = load_refresh_token_from_drive(
