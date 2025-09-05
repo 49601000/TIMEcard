@@ -92,7 +92,19 @@ elif st.session_state.access_token is None:
     except Exception as e:
         st.error("❌ 自動認証に失敗しました")
         st.write(e)
-        show_login_link(client_id, redirect_uri)
+        #show_login_link(client_id, redirect_uri)
+   
+        # 認証リンクを表示
+        auth_url = (
+            "https://accounts.google.com/o/oauth2/v2/auth?"
+            f"client_id={client_id}&"
+            f"redirect_uri={redirect_uri}&"
+            "response_type=code&"
+            "scope=https://www.googleapis.com/auth/drive.file&"
+            "access_type=offline&"
+            "prompt=consent"
+        )
+        st.markdown(f"[🔐 Google認証を開始する]({auth_url})")
 
 
 # 認証済みなら打刻UIを表示
