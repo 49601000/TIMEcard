@@ -40,6 +40,7 @@ st.write("📁 folder_id:", folder_id)
 show_title()
 
 # 🔍 Step 2: 認証コードの取得
+st.write("🔍 全クエリパラメータ:", st.query_params)  # ← ここに入れる！
 query_params = st.query_params
 code = query_params.get("code", [None])[0]
 st.write("🔍 認証コード:", code)
