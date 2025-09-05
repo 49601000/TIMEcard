@@ -22,13 +22,6 @@ if "access_token" not in st.session_state:
 # イニシャルトークン   
 if "initial_access_token" not in st.session_state:
     st.session_state.initial_access_token = None
- 
-if st.session_state.initial_access_token:
-    saved_refresh_token = load_refresh_token_from_drive(
-        access_token=st.session_state.initial_access_token,
-        folder_id=folder_id
-    )
-
 
 # 固定情報
 staff_list = ["田中", "佐藤", "鈴木", "オプティカル"]
@@ -38,6 +31,12 @@ client_secret = st.secrets["web"]["client_secret"]
 token_uri = st.secrets["web"]["token_uri"]
 redirect_uri = st.secrets["web"]["redirect_uri"]
 
+
+if st.session_state.initial_access_token:
+    saved_refresh_token = load_refresh_token_from_drive(
+        access_token=st.session_state.initial_access_token,
+        folder_id=folder_id
+    )
 
 # タイトル表示
 show_title()
