@@ -75,10 +75,13 @@ if code:
 elif st.session_state.access_token is None:
     try:
         # ✅ 初回保存した access_token を使って refresh_token.csv を読み込む
-        saved_refresh_token = load_refresh_token_from_drive(
-            access_token=st.session_state.initial_access_token,
-            folder_id=folder_id
-        )
+        if st.session_state.initial_access_token:
+            saved_refresh_token = load_refresh_token_from_drive(
+                access_token=st.session_state.initial_access_token,
+                folder_id=folder_id
+            )
+        else:
+            saved_refresh_token = None
 
         if saved_refresh_token:
             new_access_token = get_access_token_from_refresh_token(
@@ -88,11 +91,11 @@ elif st.session_state.access_token is None:
             st.success("🔄 自動ログインに成功しました")
         else:
             show_login_link(client_id, redirect_uri)
+
     except Exception as e:
         st.error("❌ 自動認証に失敗しました")
         st.write(e)
-        #show_login_link(client_id, redirect_uri)
-   
+
         # 認証リンクを表示
         auth_url = (
             "https://accounts.google.com/o/oauth2/v2/auth?"
