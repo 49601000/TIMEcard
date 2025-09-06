@@ -15,6 +15,7 @@ from logicMod import (
     save_refresh_token_to_drive,
     load_refresh_token_from_drive,
     get_access_token_from_refresh_token,
+    restore_access_token_if_needed,
     check_file_exists
 )
 
