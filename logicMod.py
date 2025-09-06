@@ -80,7 +80,26 @@ def get_access_token_from_refresh_token(refresh_token, client_id, client_secret,
         print("❌ access_token 再取得失敗:", e)
         return None
 
-# 🕒 4. 打刻データの生成
+# 4. セッション初期化時にaccess_tokenを復元する処理
+def restore_access_token_if_needed(client_id, client_secret, token_uri, folder_id):
+    if "access_token" not in st.session_state:
+        st.info("🔄 セッション復元中...")
+
+        # Drive から refresh_token を読み込む
+        refresh_token = load_refresh_token_from_drive(access_token="", folder_id=folder_id)
+        if not refresh_token:
+            st.warning("⚠️ refresh_token が見つかりません。再ログインが必要です。")
+            return
+
+        # refresh_token から access_token を再取得
+        access_token = get_access_token_from_refresh_token(refresh_token, client_id, client_secret, token_uri)
+        if access_token:
+            st.session_state.access_token = access_token
+            st.success("✅ access_token を復元しました")
+        else:
+            st.error("❌ access_token の復元に失敗しました。再認証してください。")
+
+# 🕒 5. 打刻データの生成
 def generate_punch_record(name, mode):
     now = datetime.now()
     timestamp = now.strftime("%Y-%m-%d %H:%M:%S")
@@ -95,7 +114,7 @@ def generate_punch_record(name, mode):
 
     return filename, timestamp, record_df
 
-# 📁 5. フォルダの存在確認と自動作成
+# 📁 6. フォルダの存在確認と自動作成
 def ensure_folder_exists(folder_name, access_token):
     creds = Credentials(token=access_token)
     service = build("drive", "v3", credentials=creds)
@@ -187,7 +206,7 @@ def upload_to_drive(access_token, filename, new_csv_data, folder_id=None):
         st.write("エラー内容:", str(e))
         return False
 
-# 🧩 7. 打刻処理の統合関数（フォルダ自動作成付き）
+# 🧩 8. 打刻処理の統合関数（フォルダ自動作成付き）
 def record_punch(name, mode, access_token, folder_name=None):
     folder_id = None
     if folder_name:
