@@ -114,7 +114,6 @@ def ensure_folder_exists(folder_name, access_token):
         folder = service.files().create(body=metadata, fields="id").execute()
         return folder.get("id")
 
-# 📤 6. Google Drive にCSVを追記保存
 def upload_to_drive(access_token, filename, new_csv_data, folder_id=None):
     try:
         creds = Credentials(token=access_token)
@@ -129,39 +128,41 @@ def upload_to_drive(access_token, filename, new_csv_data, folder_id=None):
 
         if files:
             file_id = files[0]["id"]
-            # 🔍 更新対象ファイルの親フォルダを確認
+
+            # 🔍 既存ファイルの親フォルダ確認
             file_metadata = service.files().get(fileId=file_id, fields="id, name, parents").execute()
             current_parents = file_metadata.get("parents", [])
-            # ② ファイル内容を更新
-            update_response = service.files().update(
-                fileId=file_id,
-                media_body=media,
-                addParents=folder_id,
-                removeParents=",".join(current_parents)  # ← 現在の親を削除
-            ).execute()
 
-           st.write("✅ ファイル更新完了:", update_response)
-           st.write("📁 フォルダ移動: 旧 →", current_parents, "→ 新 →", folder_id)
-
+            # 🔽 既存CSVをダウンロード
             request = service.files().get_media(fileId=file_id)
             fh = BytesIO()
             downloader = MediaIoBaseDownload(fh, request)
             done = False
             while not done:
                 status, done = downloader.next_chunk()
-
             fh.seek(0)
+
+            # 🔄 CSVを結合
             existing_df = pd.read_csv(fh)
             new_df = pd.read_csv(BytesIO(new_csv_data))
             combined_df = pd.concat([existing_df, new_df], ignore_index=True)
-
             updated_csv = combined_df.to_csv(index=False).encode("utf-8")
             media = MediaIoBaseUpload(BytesIO(updated_csv), mimetype="text/csv")
-            update_response = service.files().update(fileId=file_id, media_body=media).execute()
+
+            # 🛠 ファイル内容更新＋フォルダ移動（必要なら）
+            update_response = service.files().update(
+                fileId=file_id,
+                media_body=media,
+                addParents=folder_id if folder_id else None,
+                removeParents=",".join(current_parents) if folder_id else None
+            ).execute()
+
             st.write("✅ ファイル更新完了:", update_response)
-            return True, filename          
-            #service.files().update(fileId=file_id, media_body=media).execute()
+            st.write("📁 フォルダ移動: 旧 →", current_parents, "→ 新 →", folder_id)
+            return True, filename
+
         else:
+            # 🆕 新規ファイル作成
             media = MediaIoBaseUpload(BytesIO(new_csv_data), mimetype="text/csv")
             metadata = {
                 "name": filename,
@@ -169,25 +170,21 @@ def upload_to_drive(access_token, filename, new_csv_data, folder_id=None):
             }
             if folder_id:
                 metadata["parents"] = [folder_id]
-            # 🔧 webViewLink を含めてファイル作成
+
             response = service.files().create(
                 body=metadata,
                 media_body=media,
                 fields="id, name, parents, webViewLink"
             ).execute()
-            
-            # 🔍 作成されたファイルの情報を表示
-            st.write("📁 保存先フォルダID:", response.get("parents"))
-            st.write("📄 作成されたファイル情報:", response)
-            st.write("🔗 ファイルリンク:", response.get("webViewLink"))
 
-            #response = service.files().create(body=metadata, media_body=media, fields="id, name, parents").execute()
-            #st.write("📄 作成されたファイル情報:", response)
-            
-            return True, filename  # ← ファイル名を返す
+            st.write("📄 作成されたファイル情報:", response)
+            st.write("📁 保存先フォルダID:", response.get("parents"))
+            st.write("🔗 ファイルリンク:", response.get("webViewLink"))
+            return True, filename
+
     except Exception as e:
         st.error("❌ CSVアップロード失敗")
-        st.write(("エラー内容:", str(e)))
+        st.write("エラー内容:", str(e))
         return False
 
 # 🧩 7. 打刻処理の統合関数（フォルダ自動作成付き）
