@@ -131,8 +131,18 @@ def upload_to_drive(access_token, filename, new_csv_data, folder_id=None):
             file_id = files[0]["id"]
             # 🔍 更新対象ファイルの親フォルダを確認
             file_metadata = service.files().get(fileId=file_id, fields="id, name, parents").execute()
-            st.write("📁 更新対象ファイルの親フォルダ:", file_metadata.get("parents"))
-            
+            current_parents = file_metadata.get("parents", [])
+            # ② ファイル内容を更新
+            update_response = service.files().update(
+                fileId=file_id,
+                media_body=media,
+                addParents=folder_id,
+                removeParents=",".join(current_parents)  # ← 現在の親を削除
+            ).execute()
+
+           st.write("✅ ファイル更新完了:", update_response)
+           st.write("📁 フォルダ移動: 旧 →", current_parents, "→ 新 →", folder_id)
+
             request = service.files().get_media(fileId=file_id)
             fh = BytesIO()
             downloader = MediaIoBaseDownload(fh, request)
