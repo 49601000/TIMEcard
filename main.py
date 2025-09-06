@@ -152,7 +152,10 @@ elif st.session_state.access_token is None:
         )
         st.markdown(f"[🔐 Google認証を開始する]({auth_url})")
         
-# 🕒 Step 5: 認証済みなら打刻UIを表示
+# 🔄 Step 5-1: セッション復元処理（access_token がなければ Drive から復元）
+restore_access_token_if_needed(client_id, client_secret, token_uri, folder_id)
+
+# 🕒 Step 5-2: 認証済みなら打刻UIを表示
 if st.session_state.access_token:
     st.write("🕒 Step 5: access_token がある → 打刻UIを表示します")
     name = user_selector(staff_list)
