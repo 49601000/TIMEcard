@@ -142,6 +142,8 @@ def upload_to_drive(access_token, filename, new_csv_data, folder_id=None):
             combined_df = pd.concat([existing_df, new_df], ignore_index=True)
 
             updated_csv = combined_df.to_csv(index=False).encode("utf-8")
+            st.write("✅ ファイル更新完了:", update_response)
+
             media = MediaIoBaseUpload(BytesIO(updated_csv), mimetype="text/csv")
             service.files().update(fileId=file_id, media_body=media).execute()
         else:
@@ -153,10 +155,8 @@ def upload_to_drive(access_token, filename, new_csv_data, folder_id=None):
             if folder_id:
                 metadata["parents"] = [folder_id]
             response = service.files().create(body=metadata, media_body=media, fields="id, name, parents").execute()
-            return True, response["name"]  # ← ファイル名を返す
             st.write("📄 作成されたファイル情報:", response)
-
-            service.files().create(body=metadata, media_body=media, fields="id").execute()
+            return True, response["name"]  # ← ファイル名を返す
 
         return True, filename
     except Exception as e:
