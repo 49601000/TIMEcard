@@ -163,6 +163,7 @@ def upload_to_drive(access_token, filename, new_csv_data, folder_id=None):
             ).execute()
             
             # 🔍 作成されたファイルの情報を表示
+            st.write("📁 保存先フォルダID:", response.get("parents"))
             st.write("📄 作成されたファイル情報:", response)
             st.write("🔗 ファイルリンク:", response.get("webViewLink"))
 
