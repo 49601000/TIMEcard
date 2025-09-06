@@ -162,6 +162,13 @@ if st.session_state.access_token:
         timestamp, success, filename = record_punch(name, "出勤", st.session_state.access_token, folder_id)
         show_punch_result(name, timestamp, "in" if success else "error")
         check_file_exists(filename, st.session_state.access_token, folder_id)
+        #エラーチェック
+        st.write({
+            "folder_id": folder_id,
+            "filename": filename,
+            "timestamp": timestamp,
+            "success": success
+        })
 
     if punch_out and name:
         timestamp, success, filename = record_punch(name, "退勤", st.session_state.access_token, folder_id)
