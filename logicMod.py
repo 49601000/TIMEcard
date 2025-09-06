@@ -191,15 +191,20 @@ def check_file_exists(filename, access_token, folder_id=None):
     creds = Credentials(token=access_token)
     service = build("drive", "v3", credentials=creds)
 
-    query = f"name='{filename}' and mimeType='text/csv'"
+    # 🔍 クエリ構築（folder_id の有無で分岐）
     if folder_id:
-        query += f" and '{folder_id}' in parents"
+        query = f"name='{filename}' and mimeType='text/csv' and '{folder_id}' in parents"
+    else:
+        query = f"name='{filename}' and mimeType='text/csv'"
 
-    results = service.files().list(q=query, fields="files(id, name)").execute()
+    st.write("🔍 検索クエリ:", query)  # ← デバッグ用に表示
+
+    results = service.files().list(q=query, fields="files(id, name, parents)").execute()
     files = results.get("files", [])
 
     if files:
         st.success(f"✅ ファイル '{filename}' は Drive に存在します")
+        st.write("📁 検出されたファイル情報:", files)
         return True
     else:
         st.warning(f"⚠️ ファイル '{filename}' は Drive に存在しません")
