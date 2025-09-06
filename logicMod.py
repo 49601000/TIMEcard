@@ -155,20 +155,21 @@ def upload_to_drive(access_token, filename, new_csv_data, folder_id=None):
             }
             if folder_id:
                 metadata["parents"] = [folder_id]
-                # 🔧 webViewLink を含めてファイル作成
-                response = service.files().create(
-                    body=metadata,
-                    media_body=media,
-                    fields="id, name, parents, webViewLink"
-                ).execute()
-                
-                # 🔍 作成されたファイルの情報を表示
-                st.write("📄 作成されたファイル情報:", response)
-                st.write("🔗 ファイルリンク:", response.get("webViewLink"))
+            # 🔧 webViewLink を含めてファイル作成
+            response = service.files().create(
+                body=metadata,
+                media_body=media,
+                fields="id, name, parents, webViewLink"
+            ).execute()
+            
+            # 🔍 作成されたファイルの情報を表示
+            st.write("📄 作成されたファイル情報:", response)
+            st.write("🔗 ファイルリンク:", response.get("webViewLink"))
 
             #response = service.files().create(body=metadata, media_body=media, fields="id, name, parents").execute()
             #st.write("📄 作成されたファイル情報:", response)
-                return True, filename  # ← ファイル名を返す
+            
+            return True, filename  # ← ファイル名を返す
     except Exception as e:
         st.error("❌ CSVアップロード失敗")
         st.write(("エラー内容:", str(e)))
