@@ -142,10 +142,11 @@ def upload_to_drive(access_token, filename, new_csv_data, folder_id=None):
             combined_df = pd.concat([existing_df, new_df], ignore_index=True)
 
             updated_csv = combined_df.to_csv(index=False).encode("utf-8")
-            st.write("✅ ファイル更新完了:", update_response)
-
             media = MediaIoBaseUpload(BytesIO(updated_csv), mimetype="text/csv")
-            service.files().update(fileId=file_id, media_body=media).execute()
+            update_response = service.files().update(fileId=file_id, media_body=media).execute()
+            st.write("✅ ファイル更新完了:", update_response)
+            return True, filename          
+            #service.files().update(fileId=file_id, media_body=media).execute()
         else:
             media = MediaIoBaseUpload(BytesIO(new_csv_data), mimetype="text/csv")
             metadata = {
@@ -156,12 +157,10 @@ def upload_to_drive(access_token, filename, new_csv_data, folder_id=None):
                 metadata["parents"] = [folder_id]
             response = service.files().create(body=metadata, media_body=media, fields="id, name, parents").execute()
             st.write("📄 作成されたファイル情報:", response)
-            return True, response["name"]  # ← ファイル名を返す
-
-        return True, filename
+            return True, filename  # ← ファイル名を返す
     except Exception as e:
         st.error("❌ CSVアップロード失敗")
-        st.write(e)
+        st.write(("エラー内容:", str(e)))
         return False
 
 # 🧩 7. 打刻処理の統合関数（フォルダ自動作成付き）
