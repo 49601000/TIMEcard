@@ -100,9 +100,12 @@ def get_access_token_from_refresh_token(refresh_token, client_id, client_secret,
             return None, None
             
     except Exception as e:
-        st.error("❌ エラーをlogに保存しました")
-        log_error_to_drive(str(e), access_token, "1ID1-LS6_kU5l7h1VRHR9RaAAZyUkIHIt")
-        return None
+        st.error("❌ 認証に失敗しました。再ログインしてください。")
+        #log_error_to_drive(str(e), access_token, "1ID1-LS6_kU5l7h1VRHR9RaAAZyUkIHIt")
+        log_error_to_drive(str(e), "", folder_id)
+        st.button("🔑 Googleで再ログイン", on_click=start_oauth_flow)    
+        return None, None
+
 
 # 4. セッション初期化時にaccess_tokenを復元する処理
 def restore_access_token_if_needed(client_id, client_secret, token_uri, folder_id):
