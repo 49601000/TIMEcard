@@ -133,6 +133,7 @@ def ensure_folder_exists(folder_name, access_token):
             "mimeType": "application/vnd.google-apps.folder"
         }
         folder = service.files().create(body=metadata, fields="id").execute()
+        st.write("📁 新規フォルダを作成しました:", folder)
         return folder.get("id")
 
 def upload_to_drive(access_token, filename, new_csv_data, folder_id=None):
