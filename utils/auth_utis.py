@@ -134,12 +134,12 @@ def restore_access_token_if_needed(client_id, client_secret, token_uri, folder_i
         # ✅ initial_access_token を使って Drive から refresh_token を取得
         initial_token = st.session_state.get("initial_access_token")
         if not initial_token:
-            st.warning("⚠️ initial_access_token が未設定です。Driveからの復元はできません。")
+            st.info("⚠️ initial_access_token が未設定です。Driveからの復元はできません。")
             return
 
         refresh_token = load_refresh_token_from_drive(access_token=initial_token, folder_id=folder_id)
         if not refresh_token:
-            st.info("⚠️ refresh_token が見つかりません。再ログインが必要です。")
+            st.warning("⚠️ refresh_token が見つかりません。再ログインが必要です。")
             log_error_to_drive("Driveからrefresh_tokenが取得できませんでした", "", folder_id)
             return
 
