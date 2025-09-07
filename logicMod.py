@@ -211,11 +211,7 @@ def upload_to_drive(access_token, filename, new_csv_data, folder_id=None):
         return False
 
 # 🧩 8. 打刻処理の統合関数（フォルダ自動作成付き）
-def record_punch(name, mode, access_token, folder_name=None):
-    folder_id = None
-    if folder_name:
-        folder_id = ensure_folder_exists(folder_name, access_token)
-
+def record_punch(name, mode, access_token, folder_id)::
     filename, timestamp, df = generate_punch_record(name, mode)
     csv_data = df.to_csv(index=False).encode("utf-8")
     success, filename = upload_to_drive(access_token, filename, csv_data, folder_id)
