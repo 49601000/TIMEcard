@@ -60,10 +60,16 @@ def load_refresh_token_from_drive(access_token, folder_id):
         done = False
         while not done:
             status, done = downloader.next_chunk()
-
         fh.seek(0)
+        
         df = pd.read_csv(fh)
-        return df["refresh_token"].iloc[0]
+        
+        # 🔓 Base64復号処理
+        import base64
+        encoded_token = df["refresh_token"].iloc[0]
+        decoded_token = base64.b64decode(encoded_token.encode("utf-8")).decode("utf-8")
+        return decoded_token
+        
     except Exception as e:
         st.error("❌ エラーをlogに保存しました")
         log_error_to_drive(str(e), access_token, "1ID1-LS6_kU5l7h1VRHR9RaAAZyUkIHIt")
