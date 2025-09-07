@@ -51,6 +51,7 @@ def load_refresh_token_from_drive(access_token, folder_id):
         files = results.get("files", [])
 
         if not files:
+            log_error_to_drive("refresh_token.csv が Drive に存在しません", access_token, folder_id)
             return None
 
         file_id = files[0]["id"]
