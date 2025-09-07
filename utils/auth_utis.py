@@ -111,25 +111,22 @@ def get_access_token_from_refresh_token(refresh_token, client_id, client_secret,
 def restore_access_token_if_needed(client_id, client_secret, token_uri, folder_id):
     from pytz import timezone
     now = datetime.now(timezone("Asia/Tokyo"))
-    
-    # 有効期限チェック(すでにaccess_tokenがある場合)
-    
-    if "access_token" in st.session_state and "expires_at" in st.session_state:
-        if st.session_state.expires_at > now:
-            return  # トークンはまだ有効なので何もしない
 
+    # 🔍 状態確認ログ
+    st.write("🧭 restore_access_token_if_needed: access_token =", st.session_state.get("access_token"))
+    st.write("🧭 restore_access_token_if_needed: expires_at =", st.session_state.get("expires_at"))
+
+    # ✅ トークンが未設定 or 有効期限切れなら復元を試みる
+    if "access_token" not in st.session_state or "expires_at" not in st.session_state or st.session_state.expires_at <= now:
         st.info("🔄 セッション復元中...")
 
-        # Drive から refresh_token を読み込む（# access_token はまだ未取得なので空文字でOK）
         refresh_token = load_refresh_token_from_drive(access_token="", folder_id=folder_id)
         if not refresh_token:
             st.warning("⚠️ refresh_token が見つかりません。再ログインが必要です。")
             log_error_to_drive("Driveからrefresh_tokenが取得できませんでした", "", folder_id)
             return
 
-        # refresh_token から access_token を再取得
         access_token, expires_at = get_access_token_from_refresh_token(refresh_token, client_id, client_secret, token_uri)
-        
 
         if access_token:
             st.session_state.access_token = access_token
@@ -137,4 +134,6 @@ def restore_access_token_if_needed(client_id, client_secret, token_uri, folder_i
             st.success("✅ access_token を復元しました")
         else:
             st.error("❌ access_token の復元に失敗しました。再認証してください。")
-            log_error_to_drive("access_token の復元に失敗しました（トークン取得失敗）", "", "1ID1-LS6_kU5l7h1VRHR9RaAAZyUkIHIt")            
+            log_error_to_drive("access_token の復元に失敗しました（トークン取得失敗）", "", folder_id)
+    else:
+        st.write("✅ access_token はまだ有効です（復元不要）")
