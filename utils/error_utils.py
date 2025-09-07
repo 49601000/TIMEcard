@@ -1,27 +1,29 @@
 import streamlit as st
 import pandas as pd
-import requests
-import json
 from datetime import datetime
-from io import StringIO, BytesIO
+from io import BytesIO
+from pytz import timezone
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseUpload, MediaIoBaseDownload
 from google.oauth2.credentials import Credentials
 
-# 🧩 エラー処理
+#エラー収集
 def log_error_to_drive(error_message, access_token, folder_id):
     try:
         creds = Credentials(token=access_token)
         service = build("drive", "v3", credentials=creds)
 
         filename = "エラーLOG.csv"
-        query = f"name='{filename}' and '{folder_id}' in parents"
-        results = service.files().list(q=query, fields="files(id)").execute()
+        query = f"name='{filename}' and '{folder_id}' in parents and trashed=false"
+        results = service.files().list(q=query, fields="files(id, name, parents)").execute()
         files = results.get("files", [])
 
-        # 新しいログ行
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        new_row = pd.DataFrame([{"日付（時刻）": timestamp, "エラー内容": error_message}])
+        # 🕒 JSTでタイムスタンプ
+        timestamp = datetime.now(timezone("Asia/Tokyo")).strftime("%Y-%m-%d %H:%M:%S")
+
+        # 🧼 エラー内容をCSV安全化（改行・カンマ対策）
+        safe_message = error_message.replace("\n", " ").replace(",", "、")
+        new_row = pd.DataFrame([{"日付（時刻）": timestamp, "エラー内容": safe_message}])
 
         if files:
             file_id = files[0]["id"]
@@ -42,14 +44,25 @@ def log_error_to_drive(error_message, access_token, folder_id):
         media = MediaIoBaseUpload(BytesIO(updated_csv), mimetype="text/csv")
 
         if files:
-            service.files().update(fileId=file_id, media_body=media).execute()
+            response = service.files().update(
+                fileId=file_id,
+                media_body=media,
+                fields="id, name, parents, webViewLink"
+            ).execute()
         else:
             metadata = {
                 "name": filename,
                 "parents": [folder_id],
                 "mimeType": "text/csv"
             }
-            service.files().create(body=metadata, media_body=media, fields="id").execute()
+            response = service.files().create(
+                body=metadata,
+                media_body=media,
+                fields="id, name, parents, webViewLink"
+            ).execute()
+
+        st.success("✅ エラーログを保存しました")
+        st.write("🔗 ログファイル:", response.get("webViewLink"))
 
     except Exception as e:
         st.error("❌ エラーログ保存に失敗しました")
