@@ -10,12 +10,15 @@ from ui import (
     show_punch_result,
     show_login_link
 )
-from logicMod import (
-    record_punch,
+from auth_utis import (
     save_refresh_token_to_drive,
     load_refresh_token_from_drive,
     get_access_token_from_refresh_token,
-    restore_access_token_if_needed,
+    restore_access_token_if_needed
+)
+from logicMod import (
+    record_punch,
+    ,
     check_file_exists
 )
 
