@@ -20,7 +20,6 @@ from logicMod import (
     record_punch,
     check_file_exists
 )
-
 # 🧩 Step 0: セッションステート初期化
 if "code_used" not in st.session_state:
     st.session_state.code_used = False
@@ -43,6 +42,8 @@ st.write("🔐 client_secret:", client_secret[:4] + "••••••••")
 st.write("🌐 token_uri:", token_uri)
 st.write("↩️ redirect_uri:", redirect_uri)
 st.write("📁 folder_id:", folder_id)
+
+restore_access_token_if_needed(client_id, client_secret, token_uri, folder_id)
 
 # 🖼️ タイトル表示
 show_title()
