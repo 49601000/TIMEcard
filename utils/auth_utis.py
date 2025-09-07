@@ -109,7 +109,8 @@ def restore_access_token_if_needed(client_id, client_secret, token_uri, folder_i
     from pytz import timezone
     now = datetime.now(timezone("Asia/Tokyo"))
     
-    # 有効期限チェック
+    # 有効期限チェック(すでにaccess_tokenがある場合)
+    
     if "access_token" in st.session_state and "expires_at" in st.session_state:
         if st.session_state.expires_at > now:
             return  # トークンはまだ有効なので何もしない
@@ -127,6 +128,7 @@ def restore_access_token_if_needed(client_id, client_secret, token_uri, folder_i
 
         if access_token:
             st.session_state.access_token = access_token
+            st.session_state.expires_at = expires_at
             st.success("✅ access_token を復元しました")
         else:
             st.error("❌ access_token の復元に失敗しました。再認証してください。")
