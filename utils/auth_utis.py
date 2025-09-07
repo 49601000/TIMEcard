@@ -65,7 +65,6 @@ def load_refresh_token_from_drive(access_token, folder_id):
         df = pd.read_csv(fh)
         
         # 🔓 Base64復号処理
-        import base64
         encoded_token = df["refresh_token"].iloc[0]
         decoded_token = base64.b64decode(encoded_token.encode("utf-8")).decode("utf-8")
         return decoded_token
