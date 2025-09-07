@@ -76,7 +76,7 @@ def load_refresh_token_from_drive(access_token, folder_id):
         return None
 
 # 🔄 3. refresh_token から access_token を再取得
-def get_access_token_from_refresh_token(refresh_token, client_id, client_secret, token_uri):
+def get_access_token_from_refresh_token(refresh_token, client_id, client_secret, token_uri, folder_id=None):
     try:
         refresh_data = {
             "client_id": client_id,
@@ -88,22 +88,27 @@ def get_access_token_from_refresh_token(refresh_token, client_id, client_secret,
         response = requests.post(token_uri, data=refresh_data)
         response.raise_for_status()
         token_json = response.json()
+
         access_token = token_json.get("access_token")
         expires_in = token_json.get("expires_in")  # 秒数（例：3600）
-        
+
         if access_token and expires_in:
-            # JSTで有効期限を計算
             from pytz import timezone
             expires_at = datetime.now(timezone("Asia/Tokyo")) + pd.to_timedelta(expires_in, unit="s")
             return access_token, expires_at
         else:
+            st.warning("⚠️ トークンレスポンスに access_token または expires_in が含まれていません")
+            st.write("🧾 レスポンス内容:", token_json)
             return None, None
-            
+
     except Exception as e:
         st.error("❌ 認証に失敗しました。再ログインしてください。")
-        #log_error_to_drive(str(e), access_token, "1ID1-LS6_kU5l7h1VRHR9RaAAZyUkIHIt")
-        log_error_to_drive(str(e), "", folder_id)
-        st.button("🔑 Googleで再ログイン", on_click=start_oauth_flow)    
+        st.write("🧾 エラー詳細:", str(e))
+
+        if folder_id:
+            log_error_to_drive(str(e), "", folder_id)
+
+        # UI操作は関数外で行う方が安全
         return None, None
 
 
