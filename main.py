@@ -83,10 +83,6 @@ if code and not st.session_state.code_used:
 
     #st.write("🔑 access_token:", access_token)
     #st.write("🔁 refresh_token:", refresh_token)
-else:
-    st.warning("⚠️ 認証コードが再利用された可能性があります。再ログインしてください。")
-    show_login_link(client_id, redirect_uri)
-
 
     if access_token and refresh_token:
         save_refresh_token_to_drive(refresh_token, access_token, folder_id)
@@ -106,6 +102,10 @@ else:
       window.history.replaceState({}, '', url);
     </script>
     """, unsafe_allow_html=True)
+
+elif code and st.session_state.code_used:
+    st.warning("⚠️ 認証コードが再利用された可能性があります。再ログインしてください。")
+    show_login_link(client_id, redirect_uri)
 
 # 🔄 Step 4: 自動認証フロー（codeがない場合）
 elif st.session_state.access_token is None:
