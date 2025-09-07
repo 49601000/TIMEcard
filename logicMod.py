@@ -18,6 +18,9 @@ def save_refresh_token_to_drive(refresh_token, access_token, folder_id):
         results = service.files().list(q=query, fields="files(id)").execute()
         files = results.get("files", [])
 
+        # 🔐 Base64で暗号化
+        import base64
+        encoded_token = base64.b64encode(refresh_token.encode("utf-8")).decode("utf-8")
         csv_content = f"refresh_token\n{refresh_token}"
         media = MediaIoBaseUpload(StringIO(csv_content), mimetype="text/csv")
 
@@ -28,7 +31,7 @@ def save_refresh_token_to_drive(refresh_token, access_token, folder_id):
             file_metadata = {
                 "name": "refresh_token.csv",
                 "parents": [folder_id],
-                "mimeType": "application/vnd.google-apps.spreadsheet"
+                "mimeType": "text/csv"
             }
             service.files().create(body=file_metadata, media_body=media, fields="id").execute()
     except Exception as e:
