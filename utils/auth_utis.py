@@ -120,18 +120,33 @@ def restore_access_token_if_needed(client_id, client_secret, token_uri, folder_i
     # 🔍 状態確認ログ
     st.write("🧭 restore_access_token_if_needed: access_token =", st.session_state.get("access_token"))
     st.write("🧭 restore_access_token_if_needed: expires_at =", st.session_state.get("expires_at"))
+    st.write("🧭 restore_access_token_if_needed: initial_access_token =", st.session_state.get("initial_access_token"))
 
     # ✅ トークンが未設定 or 有効期限切れなら復元を試みる
-    if "access_token" not in st.session_state or "expires_at" not in st.session_state or st.session_state.expires_at <= now:
+    if (
+        "access_token" not in st.session_state
+        or "expires_at" not in st.session_state
+        or st.session_state.expires_at is None
+        or st.session_state.expires_at <= now
+    ):
         st.info("🔄 セッション復元中...")
 
-        refresh_token = load_refresh_token_from_drive(access_token="", folder_id=folder_id)
+        # ✅ initial_access_token を使って Drive から refresh_token を取得
+        initial_token = st.session_state.get("initial_access_token")
+        if not initial_token:
+            st.warning("⚠️ initial_access_token が未設定です。Driveからの復元はできません。")
+            return
+
+        refresh_token = load_refresh_token_from_drive(access_token=initial_token, folder_id=folder_id)
         if not refresh_token:
             st.warning("⚠️ refresh_token が見つかりません。再ログインが必要です。")
             log_error_to_drive("Driveからrefresh_tokenが取得できませんでした", "", folder_id)
             return
 
-        access_token, expires_at = get_access_token_from_refresh_token(refresh_token, client_id, client_secret, token_uri)
+        # ✅ refresh_token から access_token を再取得
+        access_token, expires_at = get_access_token_from_refresh_token(
+            refresh_token, client_id, client_secret, token_uri, folder_id
+        )
 
         if access_token:
             st.session_state.access_token = access_token
