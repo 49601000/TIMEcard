@@ -108,7 +108,7 @@ elif code and st.session_state.code_used:
     show_login_link(client_id, redirect_uri)
 
 # 🔄 Step 4: 自動認証フロー（codeがない場合）
-elif st.session_state.access_token is None:
+if st.session_state.access_token is None:
     st.write("🔄 Step 4: code がない → 自動認証フロー開始")
 
     try:
