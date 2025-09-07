@@ -119,9 +119,11 @@ def ensure_folder_exists(folder_name, access_token):
     creds = Credentials(token=access_token)
     service = build("drive", "v3", credentials=creds)
 
-    query = f"name='{folder_name}' and mimeType='application/vnd.google-apps.folder'"
-    results = service.files().list(q=query, fields="files(id)").execute()
+    query = f"name='{folder_name}' and mimeType='application/vnd.google-apps.folder' and trashed=false"
+    results = service.files().list(q=query, fields="files(id, name, parents)").execute()
     files = results.get("files", [])
+
+
 
     if files:
         return files[0]["id"]
