@@ -37,11 +37,11 @@ client_secret = st.secrets["web"]["client_secret"]
 token_uri = st.secrets["web"]["token_uri"]
 redirect_uri = st.secrets["web"]["redirect_uri"]
 
-st.write("📦 client_id:", client_id)
-st.write("🔐 client_secret:", client_secret[:4] + "••••••••")
-st.write("🌐 token_uri:", token_uri)
-st.write("↩️ redirect_uri:", redirect_uri)
-st.write("📁 folder_id:", folder_id)
+#st.write("📦 client_id:", client_id)
+#st.write("🔐 client_secret:", client_secret[:4] + "••••••••")
+#st.write("🌐 token_uri:", token_uri)
+#st.write("↩️ redirect_uri:", redirect_uri)
+#st.write("📁 folder_id:", folder_id)
 
 restore_access_token_if_needed(client_id, client_secret, token_uri, folder_id)
 
@@ -73,7 +73,7 @@ if code and not st.session_state.code_used:
     }
 
     token_response = requests.post(token_uri, data=token_data)
-    st.write("🧾 トークンレスポンス:", token_response.text)  # ← Googleのレスポンスを確認
+    #st.write("🧾 トークンレスポンス:", token_response.text)  # ← Googleのレスポンスを確認
 
     token_json = token_response.json()
     access_token = token_json.get("access_token")
@@ -81,8 +81,12 @@ if code and not st.session_state.code_used:
 
     show_auth_status(access_token is not None, token_json)
 
-    st.write("🔑 access_token:", access_token)
-    st.write("🔁 refresh_token:", refresh_token)
+    #st.write("🔑 access_token:", access_token)
+    #st.write("🔁 refresh_token:", refresh_token)
+    else:
+        st.warning("⚠️ 認証コードが再利用された可能性があります。再ログインしてください。")
+        show_login_link(client_id, redirect_uri)
+
 
     if access_token and refresh_token:
         save_refresh_token_to_drive(refresh_token, access_token, folder_id)
