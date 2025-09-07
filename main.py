@@ -87,12 +87,10 @@ if code and not st.session_state.code_used:
     if access_token and refresh_token:
         save_refresh_token_to_drive(refresh_token, access_token, folder_id)
         st.success("✅ refresh_token を Drive に保存しました")
-
-    st.session_state.access_token = access_token
-    st.session_state.initial_access_token = access_token
-    st.session_state.code_used = True  # ✅ 再利用防止フラグ
-
-    st.success("✅ access_token をセッションに保存しました")
+        st.session_state.access_token = access_token
+        st.session_state.initial_access_token = access_token
+        st.session_state.code_used = True  # ✅ 再利用防止フラグ
+        st.success("✅ access_token をセッションに保存しました")
 
     # ✅ 認証コードをURLから消す
     st.markdown("""
