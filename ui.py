@@ -49,3 +49,22 @@ def show_login_link(client_id, redirect_uri, scope="https://www.googleapis.com/a
         f"&prompt=consent"
     )
     st.markdown(f"[🔐 Googleでログイン]({auth_url})")
+
+def show_main_ui_if_authenticated(staff_list=None):
+    """
+    認証済みなら打刻UIを表示。未認証なら警告とログインリンクを表示。
+    staff_list を渡さない場合はデフォルトリストを使用。
+    """
+    if "access_token" in st.session_state and st.session_state.access_token:
+        show_title()
+        if staff_list is None:
+            staff_list = ["山田", "佐藤", "鈴木", "田中"]
+        name = user_selector(staff_list)
+        punch_in, punch_out = punch_buttons()
+        return name, punch_in, punch_out
+    else:
+        st.warning("⚠️ access_token が未取得のため、打刻UIは表示されません")
+        if "client_id" in st.session_state and "redirect_uri" in st.session_state:
+            show_login_link(st.session_state.client_id, st.session_state.redirect_uri)
+        return None, None, None
+
