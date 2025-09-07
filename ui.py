@@ -23,9 +23,6 @@ def show_auth_status(success, token_json=None):
     if success:
         st.success("✅ Google認証に成功しました")
     else:
-        show_auth_status(False, token_json={"error": "invalid_grant", "error_description": "Bad Request"})
-        st.button("🔑 Googleで再ログイン", on_click=start_oauth_flow)
-        #GoogleのOAuthサーバーから返ってきたレスポンス（辞書型）を表示する 
         st.error("❌ 認証失敗")
         if token_json:
             st.subheader("🔍 認証レスポンス詳細")
