@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import requests
 import json
+import base64
 from datetime import datetime
 from io import StringIO, BytesIO
 from googleapiclient.discovery import build
@@ -20,7 +21,6 @@ def save_refresh_token_to_drive(refresh_token, access_token, folder_id):
         files = results.get("files", [])
 
         # 🔐 Base64で暗号化
-        import base64
         encoded_token = base64.b64encode(refresh_token.encode("utf-8")).decode("utf-8")
         csv_content = f"refresh_token\n{encoded_token}"
         media = MediaIoBaseUpload(StringIO(csv_content), mimetype="text/csv")
@@ -88,7 +88,17 @@ def get_access_token_from_refresh_token(refresh_token, client_id, client_secret,
         response = requests.post(token_uri, data=refresh_data)
         response.raise_for_status()
         token_json = response.json()
-        return token_json.get("access_token")
+        access_token = token_json.get("access_token")
+        expires_in = token_json.get("expires_in")  # 秒数（例：3600）
+        
+        if access_token and expires_in:
+            # JSTで有効期限を計算
+            from pytz import timezone
+            expires_at = datetime.now(timezone("Asia/Tokyo")) + pd.to_timedelta(expires_in, unit="s")
+            return access_token, expires_at
+        else:
+            return None, None
+            
     except Exception as e:
         st.error("❌ エラーをlogに保存しました")
         log_error_to_drive(str(e), access_token, "1ID1-LS6_kU5l7h1VRHR9RaAAZyUkIHIt")
@@ -96,17 +106,25 @@ def get_access_token_from_refresh_token(refresh_token, client_id, client_secret,
 
 # 4. セッション初期化時にaccess_tokenを復元する処理
 def restore_access_token_if_needed(client_id, client_secret, token_uri, folder_id):
-    if "access_token" not in st.session_state:
+    from pytz import timezone
+    now = datetime.now(timezone("Asia/Tokyo"))
+    
+    # 有効期限チェック
+    if "access_token" in st.session_state and "expires_at" in st.session_state:
+        if st.session_state.expires_at > now:
+            return  # トークンはまだ有効なので何もしない
+
         st.info("🔄 セッション復元中...")
 
-        # Drive から refresh_token を読み込む
+        # Drive から refresh_token を読み込む（# access_token はまだ未取得なので空文字でOK）
         refresh_token = load_refresh_token_from_drive(access_token="", folder_id=folder_id)
         if not refresh_token:
             st.warning("⚠️ refresh_token が見つかりません。再ログインが必要です。")
             return
 
         # refresh_token から access_token を再取得
-        access_token = get_access_token_from_refresh_token(refresh_token, client_id, client_secret, token_uri)
+        access_token, expires_at = get_access_token_from_refresh_token(refresh_token, client_id, client_secret, token_uri)
+
         if access_token:
             st.session_state.access_token = access_token
             st.success("✅ access_token を復元しました")
