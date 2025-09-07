@@ -136,7 +136,9 @@ elif st.session_state.access_token is None:
                 st.success("✅ Step 4.5: 自動ログインに成功しました")
             else:
                 st.warning("⚠️ Step 4.4: access_token の取得に失敗しました")
-                show_login_link(client_id, redirect_uri)
+                show_login_link(client_id, redirect_uri)  # ← ここで再ログインリンク表示
+                show_auth_status(False, token_json={"error": "invalid_grant", "error_description": "Bad Request"})
+                
         else:
             st.warning("⚠️ Step 4.3: refresh_token が取得できませんでした")
             show_login_link(client_id, redirect_uri)
