@@ -138,6 +138,7 @@ def ensure_folder_exists(folder_name, access_token):
 
 def upload_to_drive(access_token, filename, new_csv_data, folder_id=None):
     try:
+        st.write("📁 upload_to_drive に渡された folder_id:", folder_id)
         creds = Credentials(token=access_token)
         service = build("drive", "v3", credentials=creds)
 
