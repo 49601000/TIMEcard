@@ -58,7 +58,7 @@ code = query_params.get("code")
 if isinstance(code, list):
     code = code[0]
 
-st.write("🔍 認証コード:", code)
+#st.write("🔍 認証コード:", code)
 
 # 🚪 Step 3: 初回認証フロー（codeがある場合）
 if code and not st.session_state.code_used:
@@ -102,10 +102,6 @@ if code and not st.session_state.code_used:
       window.history.replaceState({}, '', url);
     </script>
     """, unsafe_allow_html=True)
-
-elif code and st.session_state.code_used:
-    st.warning("⚠️ 認証コードが再利用された可能性があります。再ログインしてください。")
-    show_login_link(client_id, redirect_uri)
 
 # 🔄 Step 4: 自動認証フロー（codeがない場合）
 if st.session_state.access_token is None:
