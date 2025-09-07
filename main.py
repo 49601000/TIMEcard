@@ -167,6 +167,7 @@ if st.session_state.access_token:
     name = user_selector(staff_list)
     punch_in, punch_out = punch_buttons()
 
+    # 出勤処理
     if punch_in and name:
         timestamp, success, filename = record_punch(name, "出勤", st.session_state.access_token, folder_id)
         show_punch_result(name, timestamp, "in" if success else "error")
@@ -179,8 +180,11 @@ if st.session_state.access_token:
             "success": success
         })
 
+    # 出勤処理
     if punch_out and name:
         timestamp, success, filename = record_punch(name, "退勤", st.session_state.access_token, folder_id)
         show_punch_result(name, timestamp, "out" if success else "error")
 else:
     st.warning("⚠️ access_token が未取得のため、打刻UIは表示されません")
+    if "client_id" in st.session_state and "redirect_uri" in st.session_state:
+        show_login_link(st.session_state.client_id, st.session_state.redirect_uri)
