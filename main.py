@@ -30,7 +30,7 @@ if "initial_access_token" not in st.session_state:
     
 
 # 📦 Step 1: 固定情報の取得
-staff_list = ["田中", "佐藤", "鈴木", "オプティカル"]
+staff_list = ["川里", "ともみ", "まお", "テスト（林）"]
 folder_id = "1-3Dc_yKjZQt8kJD_xlRFmuH4RKAxf_Jb"
 client_id = st.secrets["web"]["client_id"]
 client_secret = st.secrets["web"]["client_secret"]
@@ -62,7 +62,7 @@ if isinstance(code, list):
 
 # 🚪 Step 3: 初回認証フロー（codeがある場合）
 if code and not st.session_state.code_used:
-    st.write("🚪 Step 3: 認証コードあり → access_token を取得します")
+    #st.write("🚪 Step 3: 認証コードあり → access_token を取得します")
 
     token_data = {
         "code": code,
@@ -86,7 +86,7 @@ if code and not st.session_state.code_used:
 
     if access_token and refresh_token:
         save_refresh_token_to_drive(refresh_token, access_token, folder_id)
-        st.success("✅ refresh_token を Drive に保存しました")
+        #st.success("✅ refresh_token を Drive に保存しました")
         st.session_state.access_token = access_token
         st.session_state.initial_access_token = access_token
         st.session_state.code_used = True  # ✅ 再利用防止フラグ
@@ -103,17 +103,17 @@ if code and not st.session_state.code_used:
 
 # 🔄 Step 4: 自動認証フロー（codeがない場合）
 if st.session_state.access_token is None:
-    st.write("🔄 Step 4: code がない → 自動認証フロー開始")
+    #st.write("🔄 Step 4: code がない → 自動認証フロー開始")
 
     try:
         # ✅ Step 4.1: refresh_token.csv を読み込み
         if st.session_state.initial_access_token:
-            st.write("📥 Step 4.1: initial_access_token あり → refresh_token.csv を読み込みます")
+            #st.write("📥 Step 4.1: initial_access_token あり → refresh_token.csv を読み込みます")
             saved_refresh_token = load_refresh_token_from_drive(
                 access_token=st.session_state.initial_access_token,
                 folder_id=folder_id
             )
-            st.write("📄 Step 4.2: refresh_token 読み込み結果:", saved_refresh_token)
+            #st.write("📄 Step 4.2: refresh_token 読み込み結果:", saved_refresh_token)
         else:
             st.warning("⚠️ Step 4.1: initial_access_token が未設定です")
             saved_refresh_token = None
@@ -127,7 +127,7 @@ if st.session_state.access_token is None:
                 client_secret=client_secret,
                 token_uri=token_uri
             )
-            st.write("🔑 Step 4.4: 新しい access_token:", new_access_token)
+            #st.write("🔑 Step 4.4: 新しい access_token:", new_access_token)
 
             if new_access_token:
                 st.session_state.access_token = new_access_token
