@@ -172,11 +172,11 @@ if st.session_state.access_token:
         check_file_exists(filename, st.session_state.access_token, folder_id)
         #エラーチェック
         #st.write({
-            "folder_id": folder_id,
-            "filename": filename,
-            "timestamp": timestamp,
-            "success": success
-        })
+        #   "folder_id": folder_id,
+        #   "filename": filename,
+        #   "timestamp": timestamp,
+        #   "success": success
+        #})
 
     # 出勤処理
     if punch_out and name:
