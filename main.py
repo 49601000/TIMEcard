@@ -138,7 +138,7 @@ if st.session_state.access_token is None:
                 show_auth_status(False, token_json={"error": "invalid_grant", "error_description": "Bad Request"})
                 
         else:
-            st.warning("⚠️ Step 4.3: refresh_token が取得できませんでした")
+            #st.warning("⚠️ Step 4.3: refresh_token が取得できませんでした")
             show_login_link(client_id, redirect_uri)
 
     except Exception as e:
@@ -171,7 +171,7 @@ if st.session_state.access_token:
         show_punch_result(name, timestamp, "in" if success else "error")
         check_file_exists(filename, st.session_state.access_token, folder_id)
         #エラーチェック
-        st.write({
+        #st.write({
             "folder_id": folder_id,
             "filename": filename,
             "timestamp": timestamp,
