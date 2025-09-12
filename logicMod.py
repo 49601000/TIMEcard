@@ -91,7 +91,7 @@ def restore_access_token_if_needed(client_id, client_secret, token_uri, folder_i
         # Drive から refresh_token を読み込む
         refresh_token = load_refresh_token_from_drive(access_token="", folder_id=folder_id)
         if not refresh_token:
-            st.warning("⚠️ refresh_token が見つかりません。再ログインが必要です。")
+            #st.warning("⚠️ refresh_token が見つかりません。再ログインが必要です。")
             return
 
         # refresh_token から access_token を再取得
