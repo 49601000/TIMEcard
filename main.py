@@ -115,7 +115,7 @@ if st.session_state.access_token is None:
             )
             #st.write("📄 Step 4.2: refresh_token 読み込み結果:", saved_refresh_token)
         else:
-            st.warning("⚠️ Step 4.1: initial_access_token が未設定です")
+            #st.warning("⚠️ Step 4.1: initial_access_token が未設定です")
             saved_refresh_token = None
 
         # ✅ Step 4.3: refresh_token があれば access_token を再取得
