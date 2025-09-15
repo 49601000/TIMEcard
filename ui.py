@@ -23,7 +23,7 @@ def show_auth_status(success, token_json=None):
     if success:
         st.success("✅ Google認証に成功しました")
     else:
-        st.error("❌ 認証失敗")
+        #st.error("❌ 認証失敗")
         if token_json:
             st.subheader("🔍 認証レスポンス詳細")
             st.write(token_json)
