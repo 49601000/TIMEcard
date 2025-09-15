@@ -118,9 +118,9 @@ def restore_access_token_if_needed(client_id, client_secret, token_uri, folder_i
     now = datetime.now(timezone("Asia/Tokyo"))
 
     # 🔍 状態確認ログ
-    st.write("🧭 restore_access_token_if_needed: access_token =", st.session_state.get("access_token"))
-    st.write("🧭 restore_access_token_if_needed: expires_at =", st.session_state.get("expires_at"))
-    st.write("🧭 restore_access_token_if_needed: initial_access_token =", st.session_state.get("initial_access_token"))
+    #st.write("🧭 restore_access_token_if_needed: access_token =", st.session_state.get("access_token"))
+    #st.write("🧭 restore_access_token_if_needed: expires_at =", st.session_state.get("expires_at"))
+    #st.write("🧭 restore_access_token_if_needed: initial_access_token =", st.session_state.get("initial_access_token"))
 
     # ✅ トークンが未設定 or 有効期限切れなら復元を試みる
     if (
