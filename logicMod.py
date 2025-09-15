@@ -86,7 +86,7 @@ def get_access_token_from_refresh_token(refresh_token, client_id, client_secret,
 # 4. セッション初期化時にaccess_tokenを復元する処理
 def restore_access_token_if_needed(client_id, client_secret, token_uri, folder_id):
     if "access_token" not in st.session_state:
-        st.info("🔄 セッション復元中...")
+        #st.info("🔄 セッション復元中...")
 
         # Drive から refresh_token を読み込む
         refresh_token = load_refresh_token_from_drive(access_token="", folder_id=folder_id)
