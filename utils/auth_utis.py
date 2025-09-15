@@ -129,12 +129,12 @@ def restore_access_token_if_needed(client_id, client_secret, token_uri, folder_i
         or st.session_state.expires_at is None
         or st.session_state.expires_at <= now
     ):
-        st.info("🔄 セッション復元中...")
+        #st.info("🔄 セッション復元中...")
 
         # ✅ initial_access_token を使って Drive から refresh_token を取得
         initial_token = st.session_state.get("initial_access_token")
         if not initial_token:
-            st.info("⚠️ initial_access_token が未設定です。Driveからの復元はできません。")
+            #st.info("⚠️ initial_access_token が未設定です。Driveからの復元はできません。")
             return
 
         refresh_token = load_refresh_token_from_drive(access_token=initial_token, folder_id=folder_id)
